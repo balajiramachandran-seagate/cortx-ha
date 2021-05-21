@@ -104,11 +104,25 @@ remote_execution =  Analysis([ha_path + '/ha/remote_execution/ssh_communicator.p
         cipher=block_cipher,
         noarchive=False)
 
+node_alert_monitor =  Analysis([ha_path + '/ha/alert_monitor/node_alert_monitor.py'],
+        pathex=[ha_path],
+        binaries=[],
+        datas=[],
+        hiddenimports=product_module_list,
+        hookspath=[],
+        runtime_hooks=[],
+        excludes=['numpy', 'matplotlib'],
+        win_no_prefer_redirects=False,
+        win_private_assemblies=False,
+        cipher=block_cipher,
+        noarchive=False)
+
 MERGE((cortxha, 'cortxha', 'cortxha'),
         (dynamic_fid_service_ra, 'dynamic_fid_service_ra', 'dynamic_fid_service_ra'),
         (ha_setup, 'ha_setup', 'ha_setup'),
         (pre_disruptive_upgrade, 'pre_disruptive_upgrade', 'pre_disruptive_upgrade'),
         (remote_execution, 'remote_execution', 'remote_execution'),
+        (node_alert_monitor, 'node_alert_monitor', 'node_alert_monitor'),
         )
 
 # cortxha
@@ -186,6 +200,20 @@ remote_execution_exe = EXE(remote_execution_pyz,
         upx=True,
         console=True )
 
+node_alert_monitor_pyz = PYZ(node_alert_monitor.pure, node_alert_monitor.zipped_data,
+        cipher=block_cipher)
+
+node_alert_monitor_exe = EXE(remote_execution_pyz,
+        node_alert_monitor.scripts,
+        [],
+        exclude_binaries=True,
+        name='node_alert_monitor',
+        debug=False,
+        bootloader_ignore_signals=False,
+        strip=False,
+        upx=True,
+        console=True )
+
 coll = COLLECT(
         # cortxha
         cortxha_exe,
@@ -216,6 +244,13 @@ coll = COLLECT(
         remote_execution.binaries,
         remote_execution.zipfiles,
         remote_execution.datas,
+
+
+        # node_alert_monitor
+        node_alert_monitor_exe,
+        node_alert_monitor.binaries,
+        node_alert_monitor.zipfiles,
+        node_alert_monitor.datas,
 
         strip=False,
         upx=True,
